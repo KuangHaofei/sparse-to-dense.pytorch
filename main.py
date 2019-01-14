@@ -55,6 +55,17 @@ def create_data_loaders(args):
         val_dataset = KITTIDataset(valdir, type='val',
             modality=args.modality, sparsifier=sparsifier)
 
+    elif args.data == 'omni':
+        traindir = os.path.join('data', args.data)
+        valdir = os.path.join('data', args.data)
+
+        from dataloaders.omni_dataloader import OmniDataset
+        if not args.evaluate:
+            train_dataset = OmniDataset(traindir, type='train',
+                modality=args.modality, sparsifier=sparsifier)
+        val_dataset = OmniDataset(valdir, type='val',
+            modality=args.modality, sparsifier=sparsifier)
+
     else:
         raise RuntimeError('Dataset not found.' +
                            'The dataset must be either of nyudepthv2 or kitti.')

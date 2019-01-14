@@ -10,7 +10,7 @@ cmap = plt.cm.viridis
 def parse_command():
     model_names = ['resnet18', 'resnet50']
     loss_names = ['l1', 'l2']
-    data_names = ['nyudepthv2', 'kitti']
+    data_names = ['nyudepthv2', 'kitti', 'omni']
 
     from dataloaders.dense_to_sparse import UniformSampling, SimulatedStereo
     sparsifier_names = [x.name for x in [UniformSampling, SimulatedStereo]]
