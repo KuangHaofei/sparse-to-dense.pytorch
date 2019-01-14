@@ -11,10 +11,13 @@ def parse_command():
     model_names = ['resnet18', 'resnet50']
     loss_names = ['l1', 'l2']
     data_names = ['nyudepthv2', 'kitti']
+
     from dataloaders.dense_to_sparse import UniformSampling, SimulatedStereo
     sparsifier_names = [x.name for x in [UniformSampling, SimulatedStereo]]
+
     from models import Decoder
     decoder_names = Decoder.names
+
     from dataloaders.dataloader import MyDataloader
     modality_names = MyDataloader.modality_names
 
@@ -58,12 +61,15 @@ def parse_command():
                         help='not to use ImageNet pre-trained weights')
     parser.set_defaults(pretrained=True)
     args = parser.parse_args()
+
+    # Kuanghf: We don't need sparse samples and depth when the input data is rgb image
     if args.modality == 'rgb' and args.num_samples != 0:
         print("number of samples is forced to be 0 when input modality is rgb")
         args.num_samples = 0
     if args.modality == 'rgb' and args.max_depth != 0.0:
         print("max depth is forced to be 0.0 when input modality is rgb/rgbd")
         args.max_depth = 0.0
+
     return args
 
 def save_checkpoint(state, is_best, epoch, output_directory):
