@@ -57,6 +57,10 @@ class OmniDataset(Dataset):
         for line in fh:
             line = line.rstrip()
             words = line.split()
+
+            words[0] = os.path.join(self.root, words[0])
+            words[1] = os.path.join(self.root, words[1])
+
             imgs.append((words[0], words[1]))
 
         self.imgs = imgs
@@ -114,10 +118,7 @@ class OmniDataset(Dataset):
         return rgbd
 
     def __getitem__(self, index):
-        word = self.imgs[index]
-
-        rgb_path = os.path.join(self.root, word[0])
-        depth_path = os.path.join(self.root, word[1])
+        rgb_path, depth_path = self.imgs[index]
 
         rgb = cv2.imread(rgb_path)
         depth = read_depth(depth_path)
