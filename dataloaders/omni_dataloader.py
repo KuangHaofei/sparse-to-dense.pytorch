@@ -58,10 +58,10 @@ class OmniDataset(Dataset):
             line = line.rstrip()
             words = line.split()
 
-            words[0] = os.path.join(self.root, words[0])
-            words[1] = os.path.join(self.root, words[1])
+            rgb_path = os.path.join(self.root, words[0])
+            depth_path = os.path.join(self.root, words[1])
 
-            imgs.append((words[0], words[1]))
+            imgs.append((rgb_path, depth_path))
 
         self.imgs = imgs
         self.sparsifier = sparsifier
