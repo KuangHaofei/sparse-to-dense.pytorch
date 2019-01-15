@@ -37,7 +37,8 @@ class OmniDataset(Dataset):
         imgs = []
         data_path = None
 
-        train = 'original_train_split.txt'
+        # train = 'original_train_split.txt'
+        train = 'original_train_debug.txt'
         val = 'original_test_split.txt'
 
         self.root = root
@@ -55,11 +56,7 @@ class OmniDataset(Dataset):
 
         fh = open(data_path, 'r')
 
-        count = 0
-
         for line in fh:
-            if count > 9:
-                break
             line = line.rstrip()
             words = line.split()
 
@@ -67,7 +64,6 @@ class OmniDataset(Dataset):
             depth_path = self.root + words[1]
 
             imgs.append((rgb_path, depth_path))
-            count += 1
 
         self.imgs = imgs
         self.sparsifier = sparsifier
@@ -84,7 +80,6 @@ class OmniDataset(Dataset):
 
         # perform 1st step of data augmentation
         transform = transforms.Compose([
-            transforms.Resize(138.0 / iheight), # this is for computational efficiency, since rotation can be slow
             transforms.Rotate(angle),
             transforms.Resize(s),
             transforms.CenterCrop(self.output_size),
@@ -100,7 +95,6 @@ class OmniDataset(Dataset):
     def val_transform(self, rgb, depth):
         depth_np = depth
         transform = transforms.Compose([
-            transforms.Resize(128.0 / iheight),
             transforms.CenterCrop(self.output_size),
         ])
         rgb_np = transform(rgb)
