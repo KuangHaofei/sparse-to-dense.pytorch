@@ -30,8 +30,8 @@ class Result(object):
 
     def evaluate(self, output, target):
 
-        print('output shape: ', output.shape)
-        print('target shape: ',target.shape)
+        # print('output shape: ', output.shape)
+        # print('target shape: ',target.shape)
 
         valid_mask = target>0
         output = output[valid_mask]
@@ -58,7 +58,7 @@ class Result(object):
         self.irmse = math.sqrt((torch.pow(abs_inv_diff, 2)).mean())
         self.imae = float(abs_inv_diff.mean())
 
-        print('finshied evaluate!')
+        # print('finshied evaluate!')
 
 
 class AverageMeter(object):
