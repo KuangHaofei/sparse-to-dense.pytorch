@@ -37,10 +37,10 @@ class OmniDataset(Dataset):
         imgs = []
         data_path = None
 
-        # train = 'original_train_split.txt'
-        train = 'original_train_debug.txt'
-        # val = 'original_test_split.txt'
-        val = 'original_test_debug.txt'
+        train = 'original_train_split.txt'
+        # train = 'original_train_debug.txt'
+        val = 'original_test_split.txt'
+        # val = 'original_test_debug.txt'
 
         self.root = root
         self.output_size = (243, 486)
