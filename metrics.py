@@ -29,6 +29,10 @@ class Result(object):
         self.data_time, self.gpu_time = data_time, gpu_time
 
     def evaluate(self, output, target):
+
+        print(output.shape)
+        print(target.shape)
+
         valid_mask = target>0
         output = output[valid_mask]
         target = target[valid_mask]
