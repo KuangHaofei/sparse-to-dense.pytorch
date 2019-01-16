@@ -2,7 +2,6 @@ import os
 import time
 import csv
 import numpy as np
-import matplotlib.pyplot as plt
 
 import torch
 import torch.backends.cudnn as cudnn
@@ -192,12 +191,9 @@ def main():
             'optimizer' : optimizer,
         }, is_best, epoch, output_directory)
 
-    # plot loss curve
-    plt.title('Training loss')
-    plt.plot(history_loss, 'o')
-    plt.xlabel('Iteration')
-    plt.ylabel('loss')
-    plt.savefig('loss.png')
+    # save loss file
+    loss_file = np.array(history_loss)
+    np.savetxt('loss', loss_file)
 
 
 def train(train_loader, model, criterion, optimizer, epoch):
