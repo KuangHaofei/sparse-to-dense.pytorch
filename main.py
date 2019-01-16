@@ -2,6 +2,7 @@ import os
 import time
 import csv
 import numpy as np
+import matplotlib.pyplot as plt
 
 import torch
 import torch.backends.cudnn as cudnn
@@ -22,6 +23,8 @@ fieldnames = ['mse', 'rmse', 'absrel', 'lg10', 'mae',
                 'data_time', 'gpu_time']
 best_result = Result()
 best_result.set_to_worst()
+
+history_loss = []
 
 def create_data_loaders(args):
     # Data loading code
@@ -97,6 +100,7 @@ def main():
         checkpoint = torch.load(args.evaluate)
         output_directory = os.path.dirname(args.evaluate)
         args = checkpoint['args']
+        args.data = 'omni'
         start_epoch = checkpoint['epoch'] + 1
         best_result = checkpoint['best_result']
         model = checkpoint['model']
@@ -188,6 +192,13 @@ def main():
             'optimizer' : optimizer,
         }, is_best, epoch, output_directory)
 
+    # plot loss curve
+    plt.title('Training loss')
+    plt.plot(history_loss, 'o')
+    plt.xlabel('Iteration')
+    plt.ylabel('loss')
+    plt.savefig('loss.png')
+
 
 def train(train_loader, model, criterion, optimizer, epoch):
     average_meter = AverageMeter()
@@ -216,6 +227,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
         end = time.time()
 
         if (i + 1) % args.print_freq == 0:
+            history_loss.append(loss.item())
             print('=> output: {}'.format(output_directory))
             print('Train Epoch: {0} [{1}/{2}]\t'
                   't_Data={data_time:.3f}({average.data_time:.3f}) '
