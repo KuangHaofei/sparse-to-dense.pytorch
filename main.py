@@ -99,7 +99,7 @@ def main():
         checkpoint = torch.load(args.evaluate)
         output_directory = os.path.dirname(args.evaluate)
         args = checkpoint['args']
-        args.data = 'omni'
+        # args.data = 'omni'
         start_epoch = checkpoint['epoch'] + 1
         best_result = checkpoint['best_result']
         model = checkpoint['model']
@@ -192,8 +192,8 @@ def main():
         }, is_best, epoch, output_directory)
 
     # save loss file
-    loss_file = np.array(history_loss)
-    np.savetxt('loss', loss_file)
+    # loss_file = np.array(history_loss)
+    # np.savetxt('loss', loss_file)
 
 
 def train(train_loader, model, criterion, optimizer, epoch):
