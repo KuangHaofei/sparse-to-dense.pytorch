@@ -23,7 +23,10 @@ def get_xy(delta_phi, delta_theta, kernel_size):
             elif i != 0 and j == 0:
                 kernel[t_i, t_j] = (0, i/np.abs(i) * tan(np.abs(i) * delta_phi))
             else:
-                kernel[t_i, t_j] = (0, 0)
+                if kernel_size//2 != 0:
+                    kernel[t_i, t_j] = (kernel_size//2, kernel_size//2)
+                else:
+                    kernel[t_i, t_j] = (1, 1)
 
     return kernel
 
@@ -117,6 +120,10 @@ class SphereConv2D(nn.Module):
         if self.grid_shape is None or self.grid_shape != tuple(x.shape[2:4]):
             self.grid_shape = tuple(x.shape[2:4])
             coordinates = gen_grid_coordinates(x.shape[2], x.shape[3], self.kernel_size, self.stride)
+            from scipy.io import savemat
+            co_dic = {}
+            co_dic['coordinates'] = coordinates
+            savemat('coordinates.mat', co_dic)
             with torch.no_grad():
                 self.grid = torch.FloatTensor(coordinates).to(x.device)
                 self.grid.requires_grad = True

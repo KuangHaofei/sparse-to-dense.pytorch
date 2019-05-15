@@ -9,10 +9,13 @@ import torch.optim
 cudnn.benchmark = True
 
 from models import ResNet
+from sphere_model import SphereFCRN
 from metrics import AverageMeter, Result
 from dataloaders.dense_to_sparse import UniformSampling, SimulatedStereo
 import criteria
 import utils
+
+# torch.backends.cudnn.benchmark = False
 
 args = utils.parse_command()
 print(args)
@@ -68,6 +71,19 @@ def create_data_loaders(args):
         val_dataset = OmniDataset(valdir, type='val',
             modality=args.modality, sparsifier=sparsifier)
 
+    elif args.data == 'uw_nyu':
+        # traindir = os.path.join('data', args.data)
+        # valdir = os.path.join('data', args.data)
+        traindir = '/root/workspace/gan/WaterGAN/output/train_and_test'
+        valdir = '/root/workspace/gan/WaterGAN/output/train_and_test'
+
+        from dataloaders.uw_nyu_dataloader import UWNYUDataset
+        if not args.evaluate:
+            train_dataset = UWNYUDataset(traindir, type='train',
+                modality=args.modality, sparsifier=sparsifier)
+        val_dataset = UWNYUDataset(valdir, type='val',
+            modality=args.modality, sparsifier=sparsifier)
+
     else:
         raise RuntimeError('Dataset not found.' +
                            'The dataset must be either of nyudepthv2 or kitti.')
@@ -99,7 +115,6 @@ def main():
         checkpoint = torch.load(args.evaluate)
         output_directory = os.path.dirname(args.evaluate)
         args = checkpoint['args']
-        # args.data = 'omni'
         start_epoch = checkpoint['epoch'] + 1
         best_result = checkpoint['best_result']
         model = checkpoint['model']
@@ -136,6 +151,11 @@ def main():
         elif args.arch == 'resnet18':
             model = ResNet(layers=18, decoder=args.decoder, output_size=train_loader.dataset.output_size,
                 in_channels=in_channels, pretrained=args.pretrained)
+        # Now, SphereNet just support RGB input
+        elif args.arch == 'sphere_resnet50':
+            model = SphereFCRN(layers=50, decoder=args.decoder, output_size=train_loader.dataset.output_size, pretrained=args.pretrained)
+        elif args.arch == 'sphere_resnet18':
+            model = SphereFCRN(layers=18, decoder=args.decoder, output_size=train_loader.dataset.output_size, pretrained=args.pretrained)
         print("=> model created.")
         optimizer = torch.optim.SGD(model.parameters(), args.lr, \
             momentum=args.momentum, weight_decay=args.weight_decay)
@@ -175,6 +195,7 @@ def main():
         is_best = result.rmse < best_result.rmse
         if is_best:
             best_result = result
+            best_model = model
             with open(best_txt, 'w') as txtfile:
                 txtfile.write("epoch={}\nmse={:.3f}\nrmse={:.3f}\nabsrel={:.3f}\nlg10={:.3f}\nmae={:.3f}\ndelta1={:.3f}\nt_gpu={:.4f}\n".
                     format(epoch, result.mse, result.rmse, result.absrel, result.lg10, result.mae, result.delta1, result.gpu_time))
@@ -192,8 +213,10 @@ def main():
         }, is_best, epoch, output_directory)
 
     # save loss file
-    # loss_file = np.array(history_loss)
-    # np.savetxt('loss', loss_file)
+    loss_file = np.array(history_loss)
+    np.savetxt(output_directory + '/loss.txt', loss_file)
+
+    torch.save(best_model.state_dict(), output_directory + '/best_model.pkl')
 
 
 def train(train_loader, model, criterion, optimizer, epoch):
@@ -273,6 +296,10 @@ def validate(val_loader, model, epoch, write_to_file=True):
         else:
             if args.modality == 'rgb':
                 rgb = input
+                # unsmaple_size = (rgb.size()[2], rgb.size()[3])
+                # unsmaple = torch.nn.Upsample(size=unsmaple_size, mode='bilinear', align_corners=True)
+                # target = unsmaple(target)
+                # pred = unsmaple(pred)
             elif args.modality == 'rgbd':
                 rgb = input[:,:3,:,:]
                 depth = input[:,3:,:,:]

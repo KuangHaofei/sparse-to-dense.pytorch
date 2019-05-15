@@ -6,7 +6,7 @@ import torch.utils.model_zoo as model_zoo
 
 import numpy as np
 
-from sphere_cnn import SphereConv2D, SphereMaxPool2D, SphereAvgPool2D
+from .sphere_cnn import SphereConv2D, SphereMaxPool2D, SphereAvgPool2D
 
 
 __all__ = ['SphereResNet', 'sphere_resnet18', 'sphere_resnet50']

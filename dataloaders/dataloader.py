@@ -50,6 +50,7 @@ class MyDataloader(data.Dataset):
     def __init__(self, root, type, sparsifier=None, modality='rgb', loader=h5_loader):
         classes, class_to_idx = find_classes(root)
         imgs = make_dataset(root, class_to_idx)
+        # imgs = imgs[:64]
         assert len(imgs)>0, "Found 0 images in subfolders of: " + root + "\n"
         print("Found {} images in {} folder.".format(len(imgs), type))
         self.root = root
@@ -73,7 +74,7 @@ class MyDataloader(data.Dataset):
     def train_transform(self, rgb, depth):
         raise (RuntimeError("train_transform() is not implemented. "))
 
-    def val_transform(rgb, depth):
+    def val_transform(self, rgb, depth):
         raise (RuntimeError("val_transform() is not implemented."))
 
     def create_sparse_depth(self, rgb, depth):

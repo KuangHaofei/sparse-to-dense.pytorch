@@ -40,6 +40,12 @@ This code was tested with Python 3 and PyTorch 0.4.0.
  	tar -xvf kitti.tar.gz && rm -f kitti.tar.gz
 	cd ..
 	```
+- Omni-360 dataset: we extend this work to depth prediction of omnidirectional images on [360-DATASET](https://vcl.iti.gr/360-dataset/). For loading the datasets in Python, we have to install some lib:
+    ```bash
+    sudo apt-get install libopenexr-dev
+    sudo apt-get install openexr
+    pip install OpenEXR
+    ```
 ## Training
 The training scripts come with several options, which can be listed with the `--help` flag. 
 ```bash

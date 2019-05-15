@@ -5,6 +5,7 @@ import torchvision.models
 import collections
 import math
 
+
 class Unpool(nn.Module):
     # Unpool: 2*2 unpooling with zero padding
     def __init__(self, num_channels, stride=2):
@@ -19,6 +20,7 @@ class Unpool(nn.Module):
 
     def forward(self, x):
         return F.conv_transpose2d(x, self.weights, stride=self.stride, groups=self.num_channels)
+
 
 def weights_init(m):
     # Initialize filters with Gaussian random weights
@@ -36,10 +38,11 @@ def weights_init(m):
         m.weight.data.fill_(1)
         m.bias.data.zero_()
 
+
 class Decoder(nn.Module):
     # Decoder is the base class for all decoders
 
-    names = ['deconv2', 'deconv3', 'upconv', 'upproj']
+    names = ['deconv2', 'deconv3', 'upconv', 'upproj', 'sphere_upproj']
 
     def __init__(self):
         super(Decoder, self).__init__()
@@ -55,6 +58,7 @@ class Decoder(nn.Module):
         x = self.layer3(x)
         x = self.layer4(x)
         return x
+
 
 class DeConv(Decoder):
     def __init__(self, in_channels, kernel_size):
@@ -80,6 +84,7 @@ class DeConv(Decoder):
         self.layer3 = convt(in_channels // (2 ** 2))
         self.layer4 = convt(in_channels // (2 ** 3))
 
+
 class UpConv(Decoder):
     # UpConv decoder consists of 4 upconv modules with decreasing number of channels and increasing feature map size
     def upconv_module(self, in_channels):
@@ -98,6 +103,7 @@ class UpConv(Decoder):
         self.layer2 = self.upconv_module(in_channels//2)
         self.layer3 = self.upconv_module(in_channels//4)
         self.layer4 = self.upconv_module(in_channels//8)
+
 
 class UpProj(Decoder):
     # UpProj decoder consists of 4 upproj modules with decreasing number of channels and increasing feature map size
@@ -126,6 +132,8 @@ class UpProj(Decoder):
 
         def forward(self, x):
             x = self.unpool(x)
+            # x = F.adaptive_avg_pool2d(x, output_size=(x.size()[2] * 2, x.size()[3] * 2))
+
             x1 = self.upper_branch(x)
             x2 = self.bottom_branch(x)
             x = x1 + x2
@@ -138,6 +146,7 @@ class UpProj(Decoder):
         self.layer2 = self.UpProjModule(in_channels//2)
         self.layer3 = self.UpProjModule(in_channels//4)
         self.layer4 = self.UpProjModule(in_channels//8)
+
 
 def choose_decoder(decoder, in_channels):
     # iheight, iwidth = 10, 8
